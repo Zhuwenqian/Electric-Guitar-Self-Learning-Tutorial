@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<!--
+  文件名称: index.html
+  文件用途: 电吉他自学教程 - 主页面
+  包含完整的电吉他入门教程内容，从最基础的知识讲解开始，逐步增加难度。
+  使用 AlphaTab 库（版本 1.3.1）渲染交互式吉他六线谱，支持播放、调速等功能。
+  所有 JS 库已下载到本地 js/ 目录，无需网络依赖。
+  
+  教程章节:
+    第一章: 认识电吉他 - 构造、部件、持琴姿势、调音
+    第二章: 基础乐理与六线谱 - 音符、音名、六线谱读法、空弦音
+    第三章: 右手拨弦基础 - 拨片使用、交替拨弦练习
+    第四章: 左手按弦基础 - 按弦姿势、半音阶练习
+    第五章: 简单单音旋律 - 小星星、欢乐颂、生日快乐
+    第六章: 强力和弦 Power Chord - 原理、两种指型、转换练习
+    第七章: 节奏吉他入门 - 闷音Palm Mute、摇滚节奏型、Riff练习
+    第八章: 进阶技巧入门 - 滑音、推弦、击弦、勾弦
+  
+  依赖库:
+    - AlphaTab v1.3.1 (js/alphaTab.min.js) - 开源吉他谱渲染引擎
+      项目地址: https://github.com/CoderLine/alphaTab
+      用于渲染交互式吉他六线谱，支持播放、循环、调速等功能
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电吉他自学教程 - 从零开始学电吉他</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ========== 移动端菜单按钮 ========== -->
+    <button class="mobile-menu-btn" onclick="toggleSidebar()" title="菜单">☰</button>
+
+    <!-- ========== 进度条 ========== -->
+    <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+
+    <!-- ========== 侧边栏导航 ========== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h1>🎸 电吉他自学教程</h1>
+            <div class="subtitle">从零基础到弹唱伴奏</div>
+            <!-- 跳转到曲目页面按钮 -->
+            <a href="songs.html" class="btn-songs-link">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                经典曲目
+            </a>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav">
+            <!-- 由 app.js 动态生成 -->
+        </nav>
+    </aside>
+
+    <!-- ========== 主内容区域 ========== -->
+    <main class="main-content" id="mainContent">
+
+        <!-- ==================== 第一章：认识电吉他 ==================== -->
+        <article class="chapter" id="ch1">
+            <div class="chapter-header">
+                <div class="chapter-number">第一章</div>
+                <h2>认识电吉他</h2>
+                <div class="chapter-desc">了解电吉他的构造、各部件的名称与功能，学习正确的持琴姿势和调音方法。</div>
+            </div>
+
+            <!-- 1.1 电吉他的构造 -->
+            <section class="section" id="s1-1">
+                <h3>1.1 电吉他的构造</h3>
+                <p>电吉他由<strong>琴头（Headstock）、琴颈（Neck）、琴身（Body）</strong>三大部分组成。与木吉他不同，电吉他依靠<strong>拾音器（Pickup）</strong>将琴弦振动转换为电信号，再通过音箱放大发声。</p>
+                
+                <h4>主要部件说明</h4>
+                <table class="info-table">
+                    <thead>
+                        <tr><th>部件名称</th><th>位置</th><th>功能说明</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>琴头 (Headstock)</td><td>吉他顶端</td><td>安装弦钮，固定琴弦一端</td></tr>
+                        <tr><td>弦钮 (Tuning Pegs)</td><td>琴头两侧</td><td>调节琴弦张力，改变音高（调音用）</td></tr>
+                        <tr><td>上弦枕 (Nut)</td><td>琴头与琴颈交界</td><td>固定琴弦间距，传递振动</td></tr>
+                        <tr><td>琴颈 (Neck)</td><td>琴头与琴身之间</td><td>安装品丝，左手按弦区域</td></tr>
+                        <tr><td>品丝 (Frets)</td><td>琴颈上的金属条</td><td>分割不同音高，按下琴弦时改变有效弦长</td></tr>
+                        <tr><td>指板 (Fretboard)</td><td>琴颈正面</td><td>左手按弦的木质面板</td></tr>
+                        <tr><td>品格 (Fret)</td><td>品丝之间的区域</td><td>从琴头方向数，第1格、第2格…</td></tr>
+                        <tr><td>琴身 (Body)</td><td>吉他主体</td><td>安装拾音器、琴桥、电路等</td></tr>
+                        <tr><td>拾音器 (Pickup)</td><td>琴身弦下方</td><td>将琴弦振动转为电信号（电磁感应原理）</td></tr>
+                        <tr><td>琴桥 (Bridge)</td><td>琴身尾部</td><td>固定琴弦另一端，部分可调节弦高和音准</td></tr>
+                        <tr><td>音量/音色旋钮</td><td>琴身面板</td><td>调节输出音量和音色明亮度</td></tr>
+                        <tr><td>拨档开关</td><td>琴身面板</td><td>切换不同拾音器组合，改变音色</td></tr>
+                        <tr><td>输出插孔</td><td>琴身侧面或正面</td><td>连接连接线到音箱</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="tip-box">
+                    <div class="tip-title">💡 小知识</div>
+                    <p>电吉他的拾音器分为<strong>单线圈（Single Coil）</strong>和<strong>双线圈（Humbucker）</strong>两种。单线圈音色清脆明亮（如Fender Stratocaster），双线圈音色厚实温暖、噪音更小（如Gibson Les Paul）。</p>
+                </div>
+            </section>
+
+            <!-- 1.2 六根弦的标准音 -->
+            <section class="section" id="s1-2">
+                <h3>1.2 六根弦的标准定音</h3>
+                <p>电吉他标准定弦（Standard Tuning）从<strong>最粗的弦（第6弦）到最细的弦（第1弦）</strong>依次为：</p>
+                
+                <div class="string-legend">
+                    <div class="string-item"><span class="string-dot" style="background:var(--string-color-6)"></span> 第6弦（最粗）: <strong>E2（低音Mi）</strong></div>
+                    <div class="string-item"><span class="string-dot" style="background:var(--string-color-5)"></span> 第5弦: <strong>A2（La）</strong></div>
+                    <div class="string-item"><span class="string-dot" style="background:var(--string-color-4)"></span> 第4弦: <strong>D3（Re）</strong></div>
+                    <div class="string-item"><span class="string-dot" style="background:var(--string-color-3)"></span> 第3弦: <strong>G3（Sol）</strong></div>
+                    <div class="string-item"><span class="string-dot" style="background:var(--string-color-2)"></span> 第2弦: <strong>B3（Si）</strong></div>
+                    <div class="string-item"><span class="string-dot" style="background:var(--string-color-1)"></span> 第1弦（最细）: <strong>E4（高音Mi）</strong></div>
+                </div>
+
+                <div class="tip-box">
+                    <div class="tip-title">🎵 记忆口诀</div>
+                    <p>从粗到细：<strong>E-A-D-G-B-E</strong>（Every Adult Dog Growls Barks Eats / 每个成年狗叫吠吃）<br>
+                    从细到粗：<strong>E-B-G-D-A-E</strong>（Easter Bunny Gets Drunk At Easter / 复活节兔子在复活节喝醉了）</p>
+                </div>
+            </section>
+
+            <!-- 1.3 持琴姿势 -->
+            <section class="section" id="s1-3">
+                <h3>1.3 正确的持琴姿势</h3>
+                <ul>
+                    <li><strong>坐姿：</strong>琴身凹槽放在右大腿上（右手弹奏者），琴颈向左上方倾斜约30-45度。</li>
+                    <li><strong>左手：</strong>拇指放在琴颈背面中间位置，手指自然弯曲，用指尖按弦。</li>
+                    <li><strong>右手：</strong>前臂自然放在琴身上，手腕放松，用拨片或手指拨弦。</li>
+                    <li><strong>站姿：</strong>使用背带，琴身高度调整到坐姿时的高度，不要挂太低。</li>
+                </ul>
+                <div class="warning-box">
+                    <div class="warning-title">⚠️ 常见错误</div>
+                    <p>左手拇指不要扣到指板上方（除非弹某些和弦需要），手腕不要过度弯曲，保持自然放松状态，避免腱鞘炎。</p>
+                </div>
+            </section>
+
+            <!-- 1.4 调音 -->
+            <section class="section" id="s1-4">
+                <h3>1.4 如何调音</h3>
+                <p>每次练习前都要调音！可以使用<strong>电子调音器、手机APP调音器、或效果器内置调音器</strong>。</p>
+                <ol>
+                    <li>打开调音器，依次弹响每根空弦</li>
+                    <li>观察调音器显示：指针偏左=音偏低（需拧紧弦钮），指针偏右=音偏高（需拧松弦钮）</li>
+                    <li>目标：6弦=E, 5弦=A, 4弦=D, 3弦=G, 2弦=B, 1弦=E</li>
+                    <li>新琴弦需要反复调几次，因为新弦会慢慢拉伸</li>
+                </ol>
+            </section>
+        </article>
+
+        <!-- ==================== 第二章：基础乐理与六线谱 ==================== -->
+        <article class="chapter" id="ch2">
+            <div class="chapter-header">
+                <div class="chapter-number">第二章</div>
+                <h2>基础乐理与六线谱</h2>
+                <div class="chapter-desc">学习基本音符知识，掌握六线谱（TAB谱）的阅读方法，认识空弦音。</div>
+            </div>
+
+            <!-- 2.1 十二平均律 -->
+            <section class="section" id="s2-1">
+                <h3>2.1 音符与半音</h3>
+                <p>音乐中使用<strong>12个不同的音高</strong>，它们按半音关系排列：</p>
+                <p style="text-align:center;font-size:1.1em;padding:15px;background:var(--bg-secondary);border-radius:8px;">
+                    C → C#/Db → D → D#/Eb → E → F → F#/Gb → G → G#/Ab → A → A#/Bb → B → C
+                </p>
+                <ul>
+                    <li><strong>半音（Half Step）：</strong>相邻两个音之间的距离，在吉他上等于<strong>相邻1个品格</strong></li>
+                    <li><strong>全音（Whole Step）：</strong>两个半音，在吉他上等于<strong>相隔2个品格</strong></li>
+                    <li><strong>#（升号）：</strong>升高半音</li>
+                    <li><strong>b（降号）：</strong>降低半音</li>
+                </ul>
+                <p>注意：E和F之间、B和C之间是<strong>半音关系</strong>（没有E#或Fb），其余相邻音之间都是全音关系。</p>
+            </section>
+
+            <!-- 2.2 六线谱读法 -->
+            <section class="section" id="s2-2">
+                <h3>2.2 六线谱（TAB谱）的读法</h3>
+                <p>六线谱是吉他专用谱，<strong>6条横线代表6根琴弦</strong>，线上的数字代表按下的<strong>品格数</strong>。</p>
+                
+                <h4>六线谱的基本规则</h4>
+                <ul>
+                    <li><strong>最上面的线 = 第1弦（最细的弦，高音E）</strong></li>
+                    <li><strong>最下面的线 = 第6弦（最粗的弦，低音E）</strong></li>
+                    <li>线上的数字 = 左手按在第几品格（0 = 空弦，不按）</li>
+                    <li>从左到右阅读 = 从先弹到后弹</li>
+                </ul>
+
+                <div class="info-box">
+                    <div class="info-title">📖 六线谱示例</div>
+                    <pre style="font-family:'Courier New',monospace;font-size:1em;line-height:1.6;color:var(--text-primary);">
+e|---0---1---3---0---|
+B|---0---0---0---0---|
+G|---1---2---0---1---|
+D|---2---2---0---2---|
+A|---3---0---2---3---|
+E|-------3---3-------|</pre>
+                    <p>上面这个谱表示：先同时弹C和弦（所有数字竖着对齐=同时弹），然后…</p>
+                </div>
+            </section>
+
+            <!-- 2.3 空弦音练习 -->
+            <section class="section" id="s2-3">
+                <h3>2.3 空弦音练习</h3>
+                <p>先来认识每根空弦的声音。下面这个练习依次弹响6根空弦，从第6弦到第1弦。</p>
+                
+                <div class="tab-container" id="tab-open-strings">
+                    <div class="tab-header">
+                        <span class="tab-title">练习2-1：空弦音练习</span>
+                        <div class="tab-controls">
+                            <span class="tempo-display" id="tempo-open">♩=60</span>
+                            <button class="btn btn-tempo" onclick="changeTempo('open', -10)">−</button>
+                            <button class="btn btn-tempo" onclick="changeTempo('open', 10)">+</button>
+                            <button class="btn btn-play" id="btnPlay-open" onclick="togglePlay('open')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('open')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-open" onclick="toggleLoop('open')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render" id="render-open"></div>
+                </div>
+
+                <div class="practice-checklist">
+                    <h4>✅ 练习目标检查</h4>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>能说出每根弦的空弦音名（E-A-D-G-B-E）</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>能不看弦，凭感觉拨到正确的弦</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>拨弦声音清晰、均匀，没有杂音</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>跟着节拍器（60BPM）每拍弹一根弦</span></label>
+                </div>
+            </section>
+        </article>
+
+        <!-- ==================== 第三章：右手拨弦基础 ==================== -->
+        <article class="chapter" id="ch3">
+            <div class="chapter-header">
+                <div class="chapter-number">第三章</div>
+                <h2>右手拨弦基础</h2>
+                <div class="chapter-desc">学习拨片（Pick）的正确使用方法，掌握交替拨弦技巧。</div>
+            </div>
+
+            <!-- 3.1 拨片的使用 -->
+            <section class="section" id="s3-1">
+                <h3>3.1 拨片（Pick）的正确使用</h3>
+                <ul>
+                    <li><strong>握法：</strong>用拇指和食指侧面夹住拨片，拨片尖端露出约3-5mm</li>
+                    <li><strong>角度：</strong>拨片与琴弦约成30度角，不要完全平行</li>
+                    <li><strong>力度：</strong>轻轻握住，不要捏太紧，手腕放松</li>
+                    <li><strong>厚度建议：</strong>初学者推荐0.7mm-1.0mm的中等厚度拨片</li>
+                </ul>
+            </section>
+
+            <!-- 3.2 交替拨弦 -->
+            <section class="section" id="s3-2">
+                <h3>3.2 交替拨弦（Alternate Picking）</h3>
+                <p>交替拨弦是电吉他最重要的右手技巧：<strong>下拨（Downstroke）和上拨（Upstroke）交替进行</strong>。</p>
+                <p>符号：<strong>𝄔 = 下拨（Down）</strong>，<strong>𝄓 = 上拨（Up）</strong></p>
+                
+                <div class="tab-container" id="tab-alt-pick">
+                    <div class="tab-header">
+                        <span class="tab-title">练习3-1：第6弦交替拨弦（下-上-下-上）</span>
+                        <div class="tab-controls">
+                            <span class="tempo-display" id="tempo-alt">♩=60</span>
+                            <button class="btn btn-tempo" onclick="changeTempo('alt', -10)">−</button>
+                            <button class="btn btn-tempo" onclick="changeTempo('alt', 10)">+</button>
+                            <button class="btn btn-play" id="btnPlay-alt" onclick="togglePlay('alt')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('alt')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-alt" onclick="toggleLoop('alt')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render" id="render-alt"></div>
+                </div>
+
+                <div class="practice-checklist">
+                    <h4>✅ 练习目标检查</h4>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>下拨和上拨音量一致，没有明显差异</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>手腕放松，不是手臂在动</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>能在60BPM下稳定弹奏，不抢拍不拖拍</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>尝试加速到80BPM、100BPM</span></label>
+                </div>
+            </section>
+
+            <!-- 3.3 跨弦练习 -->
+            <section class="section" id="s3-3">
+                <h3>3.3 跨弦拨弦练习</h3>
+                <p>在相邻弦之间切换拨弦，保持交替拨弦的节奏。</p>
+                
+                <div class="tab-container" id="tab-cross-string">
+                    <div class="tab-header">
+                        <span class="tab-title">练习3-2：跨弦交替拨弦（6弦→5弦→4弦）</span>
+                        <div class="tab-controls">
+                            <span class="tempo-display" id="tempo-cross">♩=60</span>
+                            <button class="btn btn-tempo" onclick="changeTempo('cross', -10)">−</button>
+                            <button class="btn btn-tempo" onclick="changeTempo('cross', 10)">+</button>
+                            <button class="btn btn-play" id="btnPlay-cross" onclick="togglePlay('cross')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('cross')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-cross" onclick="toggleLoop('cross')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render" id="render-cross"></div>
+                </div>
+            </section>
+        </article>
+
+        <!-- ==================== 第四章：左手按弦基础 ==================== -->
+        <article class="chapter" id="ch4">
+            <div class="chapter-header">
+                <div class="chapter-number">第四章</div>
+                <h2>左手按弦基础</h2>
+                <div class="chapter-desc">学习左手正确的按弦姿势，通过半音阶练习（爬格子）建立左手基本功。</div>
+            </div>
+
+            <!-- 4.1 按弦姿势 -->
+            <section class="section" id="s4-1">
+                <h3>4.1 左手按弦姿势</h3>
+                <ul>
+                    <li><strong>拇指位置：</strong>放在琴颈背面中间，与中指相对</li>
+                    <li><strong>手指编号：</strong>食指=1, 中指=2, 无名指=3, 小指=4</li>
+                    <li><strong>按弦位置：</strong>手指尽量靠近品丝的<strong>右侧</strong>（靠近琴身方向），这样最省力</li>
+                    <li><strong>指尖按弦：</strong>用手指尖（不是指腹）垂直按下，避免碰到相邻弦</li>
+                    <li><strong>力度：</strong>刚好能让琴弦清晰发声即可，不要过度用力</li>
+                </ul>
+                <div class="warning-box">
+                    <div class="warning-title">⚠️ 注意</div>
+                    <p>按弦太用力会导致：①音准偏高 ②手指疲劳 ③速度上不去。找到"最小有效力度"是关键！</p>
+                </div>
+            </section>
+
+            <!-- 4.2 半音阶练习 -->
+            <section class="section" id="s4-2">
+                <h3>4.2 半音阶练习（爬格子）</h3>
+                <p>这是吉他手最重要的基本功练习！<strong>每天练习10-15分钟</strong>，坚持一个月就能看到明显进步。</p>
+                
+                <div class="tab-container" id="tab-chromatic">
+                    <div class="tab-header">
+                        <span class="tab-title">练习4-1：半音阶练习（第6弦 1-2-3-4品）</span>
+                        <div class="tab-controls">
+                            <span class="tempo-display" id="tempo-chromatic">♩=60</span>
+                            <button class="btn btn-tempo" onclick="changeTempo('chromatic', -10)">−</button>
+                            <button class="btn btn-tempo" onclick="changeTempo('chromatic', 10)">+</button>
+                            <button class="btn btn-play" id="btnPlay-chromatic" onclick="togglePlay('chromatic')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('chromatic')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-chromatic" onclick="toggleLoop('chromatic')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render" id="render-chromatic"></div>
+                </div>
+
+                <div class="practice-checklist">
+                    <h4>✅ 练习目标检查</h4>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>每个音都清晰干净，没有闷音或杂音</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>手指靠近品丝右侧按弦</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>不按弦的手指放松，不要翘起来</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>能在60BPM下稳定弹奏</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>尝试在每根弦上都做这个练习</span></label>
+                </div>
+            </section>
+        </article>
+
+        <!-- ==================== 第五章：简单单音旋律 ==================== -->
+        <article class="chapter" id="ch5">
+            <div class="chapter-header">
+                <div class="chapter-number">第五章</div>
+                <h2>简单单音旋律</h2>
+                <div class="chapter-desc">用学到的左右手技巧，弹奏简单的单音旋律曲目。</div>
+            </div>
+
+            <!-- 5.1 小星星 -->
+            <section class="section" id="s5-1">
+                <h3>5.1 小星星（Twinkle Twinkle Little Star）</h3>
+                <p>这是最简单的入门曲目，只用到了前3品。注意每个音都要弹得清晰。</p>
+                
+                <div class="tab-container" id="tab-twinkle">
+                    <div class="tab-header">
+                        <span class="tab-title">曲目5-1：小星星 ⭐</span>
+                        <div class="tab-controls">
+                            <span class="tempo-display" id="tempo-twinkle">♩=80</span>
+                            <button class="btn btn-tempo" onclick="changeTempo('twinkle', -10)">−</button>
+                            <button class="btn btn-tempo" onclick="changeTempo('twinkle', 10)">+</button>
+                            <button class="btn btn-play" id="btnPlay-twinkle" onclick="togglePlay('twinkle')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('twinkle')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-twinkle" onclick="toggleLoop('twinkle')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render" id="render-twinkle"></div>
+                </div>
+            </section>
+
+            <!-- 5.2 欢乐颂 -->
+            <section class="section" id="s5-2">
+                <h3>5.2 欢乐颂（Ode to Joy）</h3>
+                <p>贝多芬第九交响曲的主题旋律，比小星星稍难一点，涉及更多弦的切换。</p>
+                
+                <div class="tab-container" id="tab-ode">
+                    <div class="tab-header">
+                        <span class="tab-title">曲目5-2：欢乐颂 🎵</span>
+                        <div class="tab-controls">
+                            <span class="tempo-display" id="tempo-ode">♩=80</span>
+                            <button class="btn btn-tempo" onclick="changeTempo('ode', -10)">−</button>
+                            <button class="btn btn-tempo" onclick="changeTempo('ode', 10)">+</button>
+                            <button class="btn btn-play" id="btnPlay-ode" onclick="togglePlay('ode')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('ode')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-ode" onclick="toggleLoop('ode')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render" id="render-ode"></div>
+                </div>
+            </section>
+
+            <!-- 5.3 生日快乐 -->
+            <section class="section" id="s5-3">
+                <h3>5.3 生日快乐歌（Happy Birthday）</h3>
+                <p>经典曲目，涉及更多弦的切换和节奏变化。</p>
+                
+                <div class="tab-container" id="tab-birthday">
+                    <div class="tab-header">
+                        <span class="tab-title">曲目5-3：生日快乐歌 🎂</span>
+                        <div class="tab-controls">
+                            <span class="tempo-display" id="tempo-birthday">♩=80</span>
+                            <button class="btn btn-tempo" onclick="changeTempo('birthday', -10)">−</button>
+                            <button class="btn btn-tempo" onclick="changeTempo('birthday', 10)">+</button>
+                            <button class="btn btn-play" id="btnPlay-birthday" onclick="togglePlay('birthday')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('birthday')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-birthday" onclick="toggleLoop('birthday')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render" id="render-birthday"></div>
+                </div>
+            </section>
+        </article>
+
+        <!-- ==================== 第六章：强力和弦（Power Chord） ==================== -->
+        <article class="chapter" id="ch6">
+            <div class="chapter-header">
+                <div class="chapter-number">第六章</div>
+                <h2>强力和弦（Power Chord）</h2>
+                <div class="chapter-desc">学习电吉他最核心的和弦类型——强力和弦（五和弦），这是摇滚、金属、朋克音乐的基础。</div>
+            </div>
+
+            <!-- 6.1 什么是强力和弦 -->
+            <section class="section" id="s6-1">
+                <h3>6.1 什么是强力和弦？</h3>
+                <p><strong>强力和弦（Power Chord）</strong>，也叫<strong>五和弦</strong>，只包含<strong>根音（Root）和五度音（Fifth）</strong>两个音，没有三度音。</p>
+                <ul>
+                    <li><strong>为什么叫"强力"？</strong>因为没有三度音，不区分大小调，通过失真效果器后声音饱满有力、不浑浊。</li>
+                    <li><strong>与木吉他和弦的区别：</strong>木吉他常用开放和弦（C、G、Am等，含3个以上音），电吉他失真后弹完整三和弦会非常浑浊，所以用强力和弦替代。</li>
+                    <li><strong>可移动性：</strong>强力和弦的指型是固定的，只需在琴颈上平移就能得到不同音高的和弦，这是它最大的优势！</li>
+                </ul>
+                <div class="tip-box">
+                    <div class="tip-title">🎸 核心原理</div>
+                    <p>强力和弦 = 根音 + 五度音。例如 C5 和弦 = C（根音）+ G（五度音）。标记为"X5"，如 C5、G5、A5、E5 等。</p>
+                </div>
+            </section>
+
+            <!-- 6.2 强力和弦的两种指型 -->
+            <section class="section" id="s6-2">
+                <h3>6.2 强力和弦的两种基本指型</h3>
+                <p>强力和弦只有<strong>两种基本指型</strong>，分别以第6弦和第5弦为根音。学会这两种指型，你就能弹所有调的强力和弦！</p>
+                
+                <h4>指型一：6弦根音（E弦根音）</h4>
+                <p>根音在第6弦上，五度音在第5弦同一品格，可选加第4弦同一品格（八度音）。</p>
+                <div class="chord-grid">
+                    <div class="chord-card">
+                        <div class="chord-name">E5 和弦（开放）</div>
+                        <div class="chord-diagram">
+e╙───X───┴───┴───┘
+B╙───X───┴───┴───┘
+G╙───X───┴───┴───┘
+D╙───X───┴───┴───┘
+A╟───2───┼───┼───┤
+E╟───0───┼───┼───┤</div>
+                        <div class="chord-desc">6弦空弦(根音E)<br>5弦2品(五度音B)<br>只弹5、6弦</div>
+                    </div>
+                    <div class="chord-card">
+                        <div class="chord-name">F5 和弦</div>
+                        <div class="chord-diagram">
+e╙───X───┴───┴───┘
+B╙───X───┴───┴───┘
+G╙───X───┴───┴───┘
+D╟───3───┼───┼───┤
+A╟───3───┼───┼───┤
+E╟───1───┼───┼───┤</div>
+                        <div class="chord-desc">食指1品6弦(根音F)<br>无名指3品5弦(五度C)<br>可选小指3品4弦</div>
+                    </div>
+                    <div class="chord-card">
+                        <div class="chord-name">G5 和弦</div>
+                        <div class="chord-diagram">
+e╙───X───┴───┴───┘
+B╙───X───┴───┴───┘
+G╙───X───┴───┴───┘
+D╟───5───┼───┼───┤
+A╟───5───┼───┼───┤
+E╟───3───┼───┼───┤</div>
+                        <div class="chord-desc">食指3品6弦(根音G)<br>无名指5品5弦(五度D)<br>可选小指5品4弦</div>
+                    </div>
+                    <div class="chord-card">
+                        <div class="chord-name">A5 和弦</div>
+                        <div class="chord-diagram">
+e╙───X───┴───┴───┘
+B╙───X───┴───┴───┘
+G╙───X───┴───┴───┘
+D╟───7───┼───┼───┤
+A╟───7───┼───┼───┤
+E╟───5───┼───┼───┤</div>
+                        <div class="chord-desc">食指5品6弦(根音A)<br>无名指7品5弦(五度E)<br>可选小指7品4弦</div>
+                    </div>
+                </div>
+
+                <h4>指型二：5弦根音（A弦根音）</h4>
+                <p>根音在第5弦上，五度音在第4弦同一品格，可选加第3弦同一品格（八度音）。</p>
+                <div class="chord-grid">
+                    <div class="chord-card">
+                        <div class="chord-name">A5 和弦（开放）</div>
+                        <div class="chord-diagram">
+e╙───X───┴───┴───┘
+B╙───X───┴───┴───┘
+G╙───X───┴───┴───┘
+D╟───2───┼───┼───┤
+A╟───0───┼───┼───┤
+E╙───X───┴───┴───┘</div>
+                        <div class="chord-desc">5弦空弦(根音A)<br>4弦2品(五度音E)<br>只弹4、5弦</div>
+                    </div>
+                    <div class="chord-card">
+                        <div class="chord-name">B5 和弦</div>
+                        <div class="chord-diagram">
+e╙───X───┴───┴───┘
+B╙───X───┴───┴───┘
+G╟───4───┼───┼───┤
+D╟───4───┼───┼───┤
+A╟───2───┼───┼───┤
+E╙───X───┴───┴───┘</div>
+                        <div class="chord-desc">食指2品5弦(根音B)<br>无名指4品4弦(五度F#)<br>可选小指4品3弦</div>
+                    </div>
+                    <div class="chord-card">
+                        <div class="chord-name">C5 和弦</div>
+                        <div class="chord-diagram">
+e╙───X───┴───┴───┘
+B╙───X───┴───┴───┘
+G╟───5───┼───┼───┤
+D╟───5───┼───┼───┤
+A╟───3───┼───┼───┤
+E╙───X───┴───┴───┘</div>
+                        <div class="chord-desc">食指3品5弦(根音C)<br>无名指5品4弦(五度G)<br>可选小指5品3弦</div>
+                    </div>
+                    <div class="chord-card">
+                        <div class="chord-name">D5 和弦</div>
+                        <div class="chord-diagram">
+e╙───X───┴───┴───┘
+B╙───X───┴───┴───┘
+G╟───7───┼───┼───┤
+D╟───7───┼───┼───┤
+A╟───5───┼───┼───┤
+E╙───X───┴───┴───┘</div>
+                        <div class="chord-desc">食指5品5弦(根音D)<br>无名指7品4弦(五度A)<br>可选小指7品3弦</div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-title">📖 强力和弦命名规则</div>
+                    <p>强力和弦标记为 <strong>根音名 + 5</strong>，如 E5、A5、G5、C5、D5、B5、F5 等。数字"5"表示只包含根音和五度音。</p>
+                </div>
+            </section>
+
+            <!-- 6.3 强力和弦转换练习 -->
+            <section class="section" id="s6-3">
+                <h3>6.3 强力和弦转换练习</h3>
+                <p>强力和弦的转换比开放和弦简单得多——<strong>保持指型不变，在琴颈上平移即可！</strong></p>
+                
+                <div class="tab-container" id="tab-chord-prog">
+                    <div class="tab-header">
+                        <span class="tab-title">练习6-1：强力和弦进行 E5 - A5 - G5 - D5（每和弦4拍）</span>
+                        <div class="tab-controls">
+                            <span class="tempo-display" id="tempo-chord">♩=60</span>
+                            <button class="btn btn-tempo" onclick="changeTempo('chord', -10)">−</button>
+                            <button class="btn btn-tempo" onclick="changeTempo('chord', 10)">+</button>
+                            <button class="btn btn-play" id="btnPlay-chord" onclick="togglePlay('chord')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('chord')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-chord" onclick="toggleLoop('chord')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render" id="render-chord"></div>
+                </div>
+
+                <div class="practice-checklist">
+                    <h4>✅ 强力和弦练习要点</h4>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>只弹根音弦和五度音弦（2根或3根弦），其他弦不碰</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>食指和无名指保持固定间距，平移时指型不变</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>左手轻触不弹的弦（护弦），避免杂音</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>能在60BPM下流畅转换</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>尝试用失真音色弹奏，感受"强力"的感觉</span></label>
+                </div>
+            </section>
+        </article>
+
+        <!-- ==================== 第七章：节奏吉他入门 ==================== -->
+        <article class="chapter" id="ch7">
+            <div class="chapter-header">
+                <div class="chapter-number">第七章</div>
+                <h2>节奏吉他入门</h2>
+                <div class="chapter-desc">用强力和弦演奏节奏吉他，学习闷音（Palm Mute）技巧和基本的摇滚节奏型。</div>
+            </div>
+
+            <!-- 7.1 闷音技巧 -->
+            <section class="section" id="s7-1">
+                <h3>7.1 闷音（Palm Mute）技巧</h3>
+                <p><strong>闷音（Palm Mute，简称P.M.）</strong>是电吉他节奏演奏最核心的技巧！用右手掌侧（小鱼际）轻轻靠在琴桥附近的琴弦上，使声音变得短促有力。</p>
+                <ul>
+                    <li><strong>手的位置：</strong>右手掌侧轻触琴弦，位置在琴桥前方约1-2cm处</li>
+                    <li><strong>力度控制：</strong>太轻=没效果，太重=完全闷死。找到"嚓嚓嚓"的短促有力感</li>
+                    <li><strong>符号标记：</strong>谱上标注 <strong>P.M.</strong> 或虚线表示闷音段落</li>
+                    <li><strong>应用场景：</strong>金属节奏、朋克节奏、摇滚riff的核心技巧</li>
+                </ul>
+                <div class="tip-box">
+                    <div class="tip-title">🎸 闷音的作用</div>
+                    <p>闷音让强力和弦听起来更有节奏感和冲击力。对比一下：不闷音=嗡嗡嗡（持续），闷音=嚓嚓嚓（短促）。摇滚和金属的节奏吉他几乎离不开闷音！</p>
+                </div>
+            </section>
+
+            <!-- 7.2 摇滚节奏型 -->
+            <section class="section" id="s7-2">
+                <h3>7.2 基本摇滚节奏型</h3>
+                <p>下面是最经典的摇滚节奏型之一：<strong>八分音符闷音 + 开放强力和弦交替</strong>。</p>
+                
+                <div class="tab-container" id="tab-song1">
+                    <div class="tab-header">
+                        <span class="tab-title">曲目7-1：摇滚节奏练习 E5（闷音 + 开放交替）</span>
+                        <div class="tab-controls">
+                            <span class="tempo-display" id="tempo-song1">♩=70</span>
+                            <button class="btn btn-tempo" onclick="changeTempo('song1', -10)">−</button>
+                            <button class="btn btn-tempo" onclick="changeTempo('song1', 10)">+</button>
+                            <button class="btn btn-play" id="btnPlay-song1" onclick="togglePlay('song1')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('song1')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-song1" onclick="toggleLoop('song1')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render" id="render-song1"></div>
+                </div>
+
+                <div class="practice-checklist">
+                    <h4>✅ 节奏吉他练习要点</h4>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>闷音时声音短促有力，不闷时声音饱满开放</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>右手掌侧位置稳定，不要来回移动</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>节奏稳定，不抢拍不拖拍（建议跟节拍器）</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>尝试用失真音色，感受闷音/开放的区别</span></label>
+                </div>
+            </section>
+
+            <!-- 7.3 经典Riff练习 -->
+            <section class="section" id="s7-3">
+                <h3>7.3 经典Riff入门练习</h3>
+                <p><strong>Riff（连复段）</strong>是摇滚/金属音乐中重复出现的短小旋律段落，通常由强力和弦和单音组合而成。下面是一个简单的经典风格Riff：</p>
+                
+                <div class="tab-container" id="tab-riff">
+                    <div class="tab-header">
+                        <span class="tab-title">曲目7-2：简单摇滚Riff（E5 - G5 - A5）</span>
+                        <div class="tab-controls">
+                            <span class="tempo-display" id="tempo-riff">♩=80</span>
+                            <button class="btn btn-tempo" onclick="changeTempo('riff', -10)">−</button>
+                            <button class="btn btn-tempo" onclick="changeTempo('riff', 10)">+</button>
+                            <button class="btn btn-play" id="btnPlay-riff" onclick="togglePlay('riff')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('riff')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-riff" onclick="toggleLoop('riff')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render" id="render-riff"></div>
+                </div>
+
+                <div class="practice-checklist">
+                    <h4>✅ Riff练习要点</h4>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>强力和弦和单音之间的切换流畅</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>闷音段落节奏准确</span></label>
+                    <label><input type="checkbox" onchange="saveChecklist()"><span>整体有"摇滚的感觉"，不是机械地弹音符</span></label>
+                </div>
+            </section>
+        </article>
+
+        <!-- ==================== 第八章：进阶技巧入门 ==================== -->
+        <article class="chapter" id="ch8">
+            <div class="chapter-header">
+                <div class="chapter-number">第八章</div>
+                <h2>进阶技巧入门</h2>
+                <div class="chapter-desc">学习电吉他最基本的四种进阶技巧：滑音、推弦、击弦、勾弦。</div>
+            </div>
+
+            <!-- 8.1 滑音 -->
+            <section class="section" id="s8-1">
+                <h3>8.1 滑音（Slide）</h3>
+                <p>滑音是指弹响一个音后，手指<strong>不离开琴弦滑到另一个品格</strong>。符号：<strong>/</strong>（上滑）或 <strong>\</strong>（下滑）。</p>
+                
+                <div class="tab-container" id="tab-slide">
+                    <div class="tab-header">
+                        <span class="tab-title">练习8-1：滑音练习（3品滑到5品）</span>
+                        <div class="tab-controls">
+                            <span class="tempo-display" id="tempo-slide">♩=60</span>
+                            <button class="btn btn-tempo" onclick="changeTempo('slide', -10)">−</button>
+                            <button class="btn btn-tempo" onclick="changeTempo('slide', 10)">+</button>
+                            <button class="btn btn-play" id="btnPlay-slide" onclick="togglePlay('slide')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('slide')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-slide" onclick="toggleLoop('slide')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render" id="render-slide"></div>
+                </div>
+            </section>
+
+            <!-- 8.2 推弦 -->
+            <section class="section" id="s8-2">
+                <h3>8.2 推弦（Bend）</h3>
+                <p>推弦是电吉他最具表现力的技巧！按弦后<strong>向上推琴弦</strong>，使音高连续升高。符号：<strong>bend</strong> 或弯曲箭头。</p>
+                <ul>
+                    <li><strong>1/4推弦：</strong>推高半个音都不到，布鲁斯常用</li>
+                    <li><strong>半音推弦（1/2）：</strong>推高1个品格（半音）</li>
+                    <li><strong>全音推弦（Full）：</strong>推高2个品格（全音），最常用</li>
+                </ul>
+                <div class="warning-box">
+                    <div class="warning-title">⚠️ 推弦要点</div>
+                    <p>推弦时用<strong>手腕旋转</strong>的力量，不是手指力量。拇指扣在琴颈上方作为支点。推弦后要能准确回到目标音高。</p>
+                </div>
+                
+                <div class="tab-container" id="tab-bend">
+                    <div class="tab-header">
+                        <span class="tab-title">练习8-2：推弦练习（全音推弦 + 半音推弦）</span>
+                        <div class="tab-controls">
+                            <span class="tempo-display" id="tempo-bend">♩=60</span>
+                            <button class="btn btn-tempo" onclick="changeTempo('bend', -10)">−</button>
+                            <button class="btn btn-tempo" onclick="changeTempo('bend', 10)">+</button>
+                            <button class="btn btn-play" id="btnPlay-bend" onclick="togglePlay('bend')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('bend')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-bend" onclick="toggleLoop('bend')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render" id="render-bend"></div>
+                </div>
+            </section>
+
+            <!-- 8.3 击弦 -->
+            <section class="section" id="s8-3">
+                <h3>8.3 击弦（Hammer-on）</h3>
+                <p>弹响一个音后，用另一根手指<strong>快速有力地敲击</strong>到更高品格的品丝上，使第二个音发声而不需要再次拨弦。符号：<strong>h</strong>。</p>
+                
+                <div class="tab-container" id="tab-hammer">
+                    <div class="tab-header">
+                        <span class="tab-title">练习8-3：击弦练习（3品击5品）</span>
+                        <div class="tab-controls">
+                            <span class="tempo-display" id="tempo-hammer">♩=60</span>
+                            <button class="btn btn-tempo" onclick="changeTempo('hammer', -10)">−</button>
+                            <button class="btn btn-tempo" onclick="changeTempo('hammer', 10)">+</button>
+                            <button class="btn btn-play" id="btnPlay-hammer" onclick="togglePlay('hammer')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('hammer')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-hammer" onclick="toggleLoop('hammer')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render" id="render-hammer"></div>
+                </div>
+            </section>
+
+            <!-- 8.4 勾弦 -->
+            <section class="section" id="s8-4">
+                <h3>8.4 勾弦（Pull-off）</h3>
+                <p>与击弦相反：先同时按住两个品格，弹响后<strong>快速松开高品格的手指</strong>，让低品格的音发声。符号：<strong>p</strong>。</p>
+                
+                <div class="tab-container" id="tab-pulloff">
+                    <div class="tab-header">
+                        <span class="tab-title">练习8-4：勾弦练习（5品勾3品）</span>
+                        <div class="tab-controls">
+                            <span class="tempo-display" id="tempo-pulloff">♩=60</span>
+                            <button class="btn btn-tempo" onclick="changeTempo('pulloff', -10)">−</button>
+                            <button class="btn btn-tempo" onclick="changeTempo('pulloff', 10)">+</button>
+                            <button class="btn btn-play" id="btnPlay-pulloff" onclick="togglePlay('pulloff')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('pulloff')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-pulloff" onclick="toggleLoop('pulloff')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render" id="render-pulloff"></div>
+                </div>
+            </section>
+        </article>
+
+    </main>
+
+    <!-- ========== 加载 AlphaTab 库（本地版本 1.3.1） ========== -->
+    <!-- 
+      开源项目: AlphaTab v1.3.1
+      项目地址: https://github.com/CoderLine/alphaTab
+      许可证: LGPL-3.0
+      用途: 渲染交互式吉他六线谱，支持播放、循环、调速
+    -->
+    <script src="js/alphaTab.min.js"></script>
+
+    <!-- ========== 加载应用逻辑脚本 ========== -->
+    <script src="js/app.js"></script>
+</body>
+</html>

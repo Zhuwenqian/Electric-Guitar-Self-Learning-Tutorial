@@ -1,0 +1,1175 @@
+<!--
+  文件名称: songs.html
+  文件用途: 电吉他自学教程 - 经典曲目练习页
+  独立展示 GTP 格式（Guitar Pro）的经典曲目，按难度分级。
+  使用 AlphaTab 库渲染交互式吉他六线谱，支持播放、循环、进度条等功能。
+  
+  功能特点:
+    - 按难度分级显示曲目（入门/初级/中级/高级）
+    - 播放进度条：蓝色竖线显示当前播放位置
+    - 小节高亮：当前播放的小节自动高亮
+    - 音符高亮：当前播放的音符颜色变化
+    - 返回教程页面的快捷入口
+  
+  依赖库:
+    - AlphaTab v1.3.1 (js/alphaTab.min.js) - 开源吉他谱渲染引擎
+      项目地址: https://github.com/CoderLine/alphaTab
+      用于渲染交互式吉他六线谱，支持播放、循环、调速等功能
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>经典曲目练习 - 电吉他自学教程</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Righteous&display=swap" rel="stylesheet">
+    
+    <!-- ========== 样式表 ========== -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- 
+      自定义样式 - 经典曲目展示页
+      设计风格: Vibrant & Block-based (音乐/娱乐风格)
+      配色: 深色背景 + 鲜艳强调色 + 渐变效果
+    -->
+    <style>
+        /* ========== CSS 变量定义 ========== */
+        :root {
+            --songs-bg: #0f0f23;
+            --songs-card-bg: #1a1a2e;
+            --songs-card-hover: #16213e;
+            --songs-accent: #F97316;
+            --songs-accent-hover: #EA580C;
+            --songs-text: #E2E8F0;
+            --songs-text-muted: #94A3B8;
+            --songs-border: rgba(255, 255, 255, 0.1);
+            --songs-glow: rgba(249, 115, 22, 0.3);
+        }
+
+        /* ========== 页面基础样式 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--songs-bg);
+            color: var(--songs-text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ========== 页面布局容器 ========== */
+        .page-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ========== 左侧固定区域（标题+目录） ========== */
+        .sidebar-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100vh;
+            background: rgba(15, 15, 35, 0.98);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--songs-border);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        /* 导航栏 - 固定在侧边栏顶部 */
+        .nav-bar {
+            position: sticky;
+            top: 0;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 15px;
+            background: rgba(15, 15, 35, 0.98);
+            border-bottom: 1px solid var(--songs-border);
+        }
+
+        .nav-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-logo {
+            font-family: 'Righteous', cursive;
+            font-size: 1.4em;
+            background: linear-gradient(135deg, #F97316, #EF4444, #8B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-subtitle {
+            font-size: 0.85em;
+            color: var(--songs-text-muted);
+        }
+
+        /* ========== 返回按钮样式 ========== */
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: white !important;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            border: none;
+            width: 100%;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+        }
+
+        .btn-back svg {
+            width: 18px;
+            height: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-back:hover svg {
+            transform: translateX(-3px);
+        }
+
+        /* ========== 曲目目录样式 ========== */
+        .song-toc {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .toc-title {
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--songs-text-muted);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--songs-border);
+        }
+
+        .toc-group {
+            margin-bottom: 20px;
+        }
+
+        .toc-group-title {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--songs-accent);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toc-group-title .badge {
+            font-size: 0.7em;
+            padding: 2px 8px;
+            background: rgba(249, 115, 22, 0.2);
+            border-radius: 10px;
+            color: var(--songs-accent);
+        }
+
+        .toc-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .toc-list li {
+            margin-bottom: 6px;
+        }
+
+        .toc-list a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            color: var(--songs-text-muted);
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 0.88em;
+            transition: all 0.2s ease;
+        }
+
+        .toc-list a:hover {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--songs-text);
+            transform: translateX(4px);
+        }
+
+        .toc-list a.active {
+            background: rgba(249, 115, 22, 0.15);
+            color: var(--songs-accent);
+        }
+
+        .toc-list a .song-icon {
+            font-size: 1em;
+            opacity: 0.7;
+        }
+
+        .toc-list a .song-name {
+            flex: 1;
+        }
+
+        .toc-list a .song-artist-toc {
+            font-size: 0.75em;
+            opacity: 0.6;
+        }
+
+        /* ========== 主内容区域 ========== */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            min-width: 0;
+        }
+        .songs-page {
+            padding: 30px 30px 60px;
+        }
+
+        /* ========== 页面标题区域 ========== */
+        .page-hero {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 50px 30px;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(139, 92, 246, 0.1));
+            border-radius: 24px;
+            border: 1px solid var(--songs-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.05) 0%, transparent 70%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .page-hero h1 {
+            font-family: 'Righteous', cursive;
+            font-size: 2.8em;
+            background: linear-gradient(135deg, #F97316, #EF4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .page-hero p {
+            color: var(--songs-text-muted);
+            font-size: 1.1em;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* 统计信息 */
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 25px;
+            position: relative;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-number {
+            font-family: 'Righteous', cursive;
+            font-size: 2em;
+            color: var(--songs-accent);
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: var(--songs-text-muted);
+        }
+
+        /* ========== 难度分级标题 ========== */
+        .difficulty-section {
+            margin-bottom: 50px;
+        }
+
+        .difficulty-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding: 20px 25px;
+            background: var(--songs-card-bg);
+            border-radius: 16px;
+            border-left: 5px solid;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-header:hover {
+            background: var(--songs-card-hover);
+            transform: translateX(5px);
+        }
+
+        .difficulty-header.beginner { border-left-color: #4ecca3; }
+        .difficulty-header.easy { border-left-color: #3498db; }
+        .difficulty-header.medium { border-left-color: #f0a500; }
+        .difficulty-header.hard { border-left-color: #e94560; }
+
+        .difficulty-badge {
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.9em;
+            color: white;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .difficulty-beginner { 
+            background: linear-gradient(135deg, #4ecca3, #38b589); 
+        }
+        .difficulty-easy { 
+            background: linear-gradient(135deg, #3498db, #2980b9); 
+        }
+        .difficulty-medium { 
+            background: linear-gradient(135deg, #f0a500, #d4940a); 
+        }
+        .difficulty-hard { 
+            background: linear-gradient(135deg, #e94560, #c73e54); 
+        }
+
+        .difficulty-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--songs-text);
+        }
+
+        .difficulty-desc {
+            font-size: 0.9em;
+            color: var(--songs-text-muted);
+            margin-left: auto;
+        }
+
+        /* ========== 曲目卡片样式 ========== */
+        .song-card {
+            background: var(--songs-card-bg);
+            border: 1px solid var(--songs-border);
+            border-radius: 20px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .song-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            padding: 1px;
+            background: linear-gradient(135deg, transparent, transparent, rgba(249, 115, 22, 0.2));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;  /* 关键：让点击事件穿透到下层元素 */
+        }
+
+        .song-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px var(--songs-glow);
+        }
+
+        .song-card:hover::before {
+            opacity: 1;
+        }
+
+        .song-card .tab-container {
+            margin: 0;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+        }
+
+        /* 曲目标题头部 */
+        .tab-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 20px 25px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid var(--songs-border);
+        }
+
+        .song-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tab-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--songs-text);
+        }
+
+        .song-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .song-artist {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(59, 130, 246, 0.15);
+            color: #60A5FA;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .song-artist::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #60A5FA;
+            border-radius: 50%;
+        }
+
+        .song-difficulty {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: white;
+        }
+
+        /* 控制按钮组 */
+        .tab-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-play {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-play:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+        }
+
+        .btn-stop {
+            background: rgba(239, 68, 68, 0.15);
+            color: #FCA5A5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-stop:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-loop {
+            background: rgba(139, 92, 246, 0.15);
+            color: #A78BFA;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-loop:hover {
+            background: rgba(139, 92, 246, 0.25);
+        }
+
+        .btn-loop.active {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            color: white;
+            border: none;
+        }
+
+        /* ========== 按钮禁用状态（加载中） ========== */
+        .btn-play:disabled,
+        .btn-play[disabled] {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: linear-gradient(135deg, #6B7280, #4B5563) !important;
+            box-shadow: none !important;
+        }
+
+        /* ========== 乐谱渲染区域 ========== */
+        .tab-render.songs-tab {
+            position: relative;
+            background: #ffffff;
+            min-height: 300px;
+            overflow-x: auto;
+            border-radius: 0;
+        }
+
+        /* ========== AlphaTab 播放光标样式 ========== */
+        
+        /* 小节光标 - 当前播放的小节高亮 */
+        .at-cursor-bar {
+            background-color: rgba(249, 115, 22, 0.2) !important;
+            transition: all 0.1s ease;
+        }
+
+        /* 拍光标 - 蓝色竖线进度条 */
+        .at-cursor-beat {
+            width: 3px !important;
+            background: linear-gradient(to bottom,
+                transparent 0%,
+                #F97316 10%,
+                #F97316 90%,
+                transparent 100%
+            ) !important;
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.9),
+                        0 0 30px rgba(249, 115, 22, 0.5),
+                        0 0 45px rgba(249, 115, 22, 0.3) !important;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        /* 当前播放元素高亮（SVG） */
+        .at-highlight * {
+            fill: #F97316 !important;
+            stroke: #F97316 !important;
+        }
+
+        /* ========== 响应式设计 ========== */
+        @media (max-width: 1024px) {
+            .sidebar-fixed {
+                width: 240px;
+            }
+            .main-content {
+                margin-left: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-wrapper {
+                flex-direction: column;
+            }
+
+            .sidebar-fixed {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--songs-border);
+            }
+
+            .nav-bar {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 15px;
+                gap: 10px;
+            }
+
+            .nav-brand {
+                flex-direction: row;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .btn-back {
+                width: auto;
+                padding: 10px 18px;
+                font-size: 0.85em;
+            }
+
+            .song-toc {
+                display: none; /* 移动端默认隐藏目录 */
+            }
+
+            .song-toc.mobile-show {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .songs-page {
+                padding: 20px 15px 40px;
+            }
+
+            .page-hero {
+                padding: 30px 20px;
+            }
+
+            .page-hero h1 {
+                font-size: 2em;
+            }
+
+            .stats-row {
+                gap: 20px;
+            }
+
+            .stat-number {
+                font-size: 1.5em;
+            }
+
+            .tab-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px;
+            }
+
+            .tab-controls {
+                width: 100%;
+            }
+
+            .tab-controls .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .difficulty-title {
+                font-size: 1.1em;
+            }
+
+            .difficulty-desc {
+                display: none;
+            }
+
+            /* 移动端目录切换按钮 */
+            .toc-toggle {
+                display: flex;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .toc-toggle {
+                display: none;
+            }
+        }
+
+        /* ========== 动画效果 ========== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .song-card {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .song-card:nth-child(1) { animation-delay: 0.05s; }
+        .song-card:nth-child(2) { animation-delay: 0.1s; }
+
+        /* 目录切换按钮（移动端） */
+        .toc-toggle {
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: rgba(249, 115, 22, 0.15);
+            color: var(--songs-accent);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            border-radius: 10px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toc-toggle:hover {
+            background: rgba(249, 115, 22, 0.25);
+        }
+
+        .toc-toggle svg {
+            width: 16px;
+            height: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 页面布局容器 ========== -->
+    <div class="page-wrapper">
+        <!-- ========== 左侧固定区域（标题+目录） ========== -->
+        <aside class="sidebar-fixed">
+            <!-- 导航栏 -->
+            <nav class="nav-bar">
+                <div class="nav-brand">
+                    <span class="nav-logo">Electric Guitar Tutorial</span>
+                    <span class="nav-subtitle">经典曲目练习</span>
+                </div>
+                <a href="index.html" class="btn-back">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    返回教程
+                </a>
+                <!-- 移动端目录切换按钮 -->
+                <button class="toc-toggle" onclick="toggleToc()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                    曲目目录
+                </button>
+            </nav>
+
+            <!-- 曲目目录 -->
+            <div class="song-toc" id="songToc">
+                <div class="toc-title">曲目列表</div>
+
+                <!-- 入门级 -->
+                <div class="toc-group">
+                    <div class="toc-group-title">
+                        入门级
+                        <span class="badge">2首</span>
+                    </div>
+                    <ul class="toc-list">
+                        <li><a href="#song-xihuan" onclick="scrollToSection('song-xihuan', this)"><span class="song-icon">🎵</span><span class="song-name">喜欢你</span><span class="song-artist-toc">Beyond</span></a></li>
+                        <li><a href="#song-zhenai" onclick="scrollToSection('song-zhenai', this)"><span class="song-icon">🎵</span><span class="song-name">真的爱你</span><span class="song-artist-toc">Beyond</span></a></li>
+                    </ul>
+                </div>
+
+                <!-- 初级 -->
+                <div class="toc-group">
+                    <div class="toc-group-title">
+                        初级
+                        <span class="badge">2首</span>
+                    </div>
+                    <ul class="toc-list">
+                        <li><a href="#song-guanlan" onclick="scrollToSection('song-guanlan', this)"><span class="song-icon">🎵</span><span class="song-name">大声说喜欢你</span><span class="song-artist-toc">BAAD</span></a></li>
+                        <li><a href="#song-haikuo" onclick="scrollToSection('song-haikuo', this)"><span class="song-icon">🎵</span><span class="song-name">海阔天空</span><span class="song-artist-toc">Beyond</span></a></li>
+                    </ul>
+                </div>
+
+                <!-- 中级 -->
+                <div class="toc-group">
+                    <div class="toc-group-title">
+                        中级
+                        <span class="badge">2首</span>
+                    </div>
+                    <ul class="toc-list">
+                        <li><a href="#song-huise" onclick="scrollToSection('song-huise', this)"><span class="song-icon">🎵</span><span class="song-name">灰色轨迹</span><span class="song-artist-toc">Beyond</span></a></li>
+                        <li><a href="#song-shuibw" onclick="scrollToSection('song-shuibw', this)"><span class="song-icon">🎵</span><span class="song-name">谁伴我闯荡</span><span class="song-artist-toc">Beyond</span></a></li>
+                    </ul>
+                </div>
+
+                <!-- 高级 -->
+                <div class="toc-group">
+                    <div class="toc-group-title">
+                        高级
+                        <span class="badge">2首</span>
+                    </div>
+                    <ul class="toc-list">
+                        <li><a href="#song-kanon" onclick="scrollToSection('song-kanon', this)"><span class="song-icon">🎵</span><span class="song-name">摇滚卡农</span><span class="song-artist-toc">JerryC</span></a></li>
+                        <li><a href="#song-yefeng" onclick="scrollToSection('song-yefeng', this)"><span class="song-icon">🎵</span><span class="song-name">野蜂飞舞</span><span class="song-artist-toc">古典</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ========== 主内容区域 ========== -->
+        <main class="main-content">
+
+    <!-- ========== 主内容区域 ========== -->
+    <div class="songs-page">
+        <!-- 页面标题 -->
+        <header class="page-hero">
+            <h1>经典曲目练习</h1>
+            <p>通过练习经典曲目巩固所学技巧，所有曲目支持动态播放进度显示</p>
+            <div class="stats-row">
+                <div class="stat-item">
+                    <span class="stat-number">8</span>
+                    <span class="stat-label">首曲目</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">4</span>
+                    <span class="stat-label">个难度</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">∞</span>
+                    <span class="stat-label">次循环</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ==================== 入门级曲目 ==================== -->
+        <section class="difficulty-section" id="beginner">
+            <div class="difficulty-header beginner">
+                <span class="difficulty-badge difficulty-beginner">入门级</span>
+                <span class="difficulty-title">适合初学者</span>
+                <span class="difficulty-desc">旋律简单 · 速度适中</span>
+            </div>
+
+            <!-- 喜欢你 -->
+            <div class="song-card" id="song-xihuan">
+                <div class="tab-container" id="tab-gtp-xihuan">
+                    <div class="tab-header">
+                        <div class="song-info">
+                            <span class="tab-title">喜欢你</span>
+                            <div class="song-meta">
+                                <span class="song-artist">Beyond</span>
+                                <span class="song-difficulty difficulty-beginner">入门</span>
+                            </div>
+                        </div>
+                        <div class="tab-controls">
+                            <button class="btn btn-play" id="btnPlay-gtp-xihuan" onclick="togglePlay('gtp-xihuan')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('gtp-xihuan')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-gtp-xihuan" onclick="toggleLoop('gtp-xihuan')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render songs-tab" id="render-gtp-xihuan"></div>
+                </div>
+            </div>
+
+            <!-- 真的爱你 -->
+            <div class="song-card" id="song-zhenai">
+                <div class="tab-container" id="tab-gtp-zhenai">
+                    <div class="tab-header">
+                        <div class="song-info">
+                            <span class="tab-title">真的爱你</span>
+                            <div class="song-meta">
+                                <span class="song-artist">Beyond</span>
+                                <span class="song-difficulty difficulty-beginner">入门</span>
+                            </div>
+                        </div>
+                        <div class="tab-controls">
+                            <button class="btn btn-play" id="btnPlay-gtp-zhenai" onclick="togglePlay('gtp-zhenai')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('gtp-zhenai')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-gtp-zhenai" onclick="toggleLoop('gtp-zhenai')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render songs-tab" id="render-gtp-zhenai"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 初级曲目 ==================== -->
+        <section class="difficulty-section" id="easy">
+            <div class="difficulty-header easy">
+                <span class="difficulty-badge difficulty-easy">初级</span>
+                <span class="difficulty-title">基础技巧应用</span>
+                <span class="difficulty-desc">节奏相对简单</span>
+            </div>
+
+            <!-- 大声说喜欢你 -->
+            <div class="song-card" id="song-guanlan">
+                <div class="tab-container" id="tab-gtp-guanlan">
+                    <div class="tab-header">
+                        <div class="song-info">
+                            <span class="tab-title">大声说喜欢你</span>
+                            <div class="song-meta">
+                                <span class="song-artist">BAAD / 灌篮高手片头曲</span>
+                                <span class="song-difficulty difficulty-easy">初级</span>
+                            </div>
+                        </div>
+                        <div class="tab-controls">
+                            <button class="btn btn-play" id="btnPlay-gtp-guanlan" onclick="togglePlay('gtp-guanlan')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('gtp-guanlan')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-gtp-guanlan" onclick="toggleLoop('gtp-guanlan')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render songs-tab" id="render-gtp-guanlan"></div>
+                </div>
+            </div>
+
+            <!-- 海阔天空 -->
+            <div class="song-card" id="song-haikuo">
+                <div class="tab-container" id="tab-gtp-haikuo">
+                    <div class="tab-header">
+                        <div class="song-info">
+                            <span class="tab-title">海阔天空</span>
+                            <div class="song-meta">
+                                <span class="song-artist">Beyond</span>
+                                <span class="song-difficulty difficulty-easy">初级</span>
+                            </div>
+                        </div>
+                        <div class="tab-controls">
+                            <button class="btn btn-play" id="btnPlay-gtp-haikuo" onclick="togglePlay('gtp-haikuo')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('gtp-haikuo')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-gtp-haikuo" onclick="toggleLoop('gtp-haikuo')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render songs-tab" id="render-gtp-haikuo"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 中级曲目 ==================== -->
+        <section class="difficulty-section" id="medium">
+            <div class="difficulty-header medium">
+                <span class="difficulty-badge difficulty-medium">中级</span>
+                <span class="difficulty-title">进阶技巧</span>
+                <span class="difficulty-desc">需要一定基础</span>
+            </div>
+
+            <!-- 灰色轨迹 -->
+            <div class="song-card" id="song-huise">
+                <div class="tab-container" id="tab-gtp-huise">
+                    <div class="tab-header">
+                        <div class="song-info">
+                            <span class="tab-title">灰色轨迹</span>
+                            <div class="song-meta">
+                                <span class="song-artist">Beyond</span>
+                                <span class="song-difficulty difficulty-medium">中级</span>
+                            </div>
+                        </div>
+                        <div class="tab-controls">
+                            <button class="btn btn-play" id="btnPlay-gtp-huise" onclick="togglePlay('gtp-huise')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('gtp-huise')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-gtp-huise" onclick="toggleLoop('gtp-huise')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render songs-tab" id="render-gtp-huise"></div>
+                </div>
+            </div>
+
+            <!-- 谁伴我闯荡 -->
+            <div class="song-card" id="song-shuibw">
+                <div class="tab-container" id="tab-gtp-shuibw">
+                    <div class="tab-header">
+                        <div class="song-info">
+                            <span class="tab-title">谁伴我闯荡</span>
+                            <div class="song-meta">
+                                <span class="song-artist">Beyond</span>
+                                <span class="song-difficulty difficulty-medium">中级</span>
+                            </div>
+                        </div>
+                        <div class="tab-controls">
+                            <button class="btn btn-play" id="btnPlay-gtp-shuibw" onclick="togglePlay('gtp-shuibw')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('gtp-shuibw')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-gtp-shuibw" onclick="toggleLoop('gtp-shuibw')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render songs-tab" id="render-gtp-shuibw"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 高级曲目 ==================== -->
+        <section class="difficulty-section" id="hard">
+            <div class="difficulty-header hard">
+                <span class="difficulty-badge difficulty-hard">高级</span>
+                <span class="difficulty-title">挑战级别</span>
+                <span class="difficulty-desc">技巧复杂 · 速度快</span>
+            </div>
+
+            <!-- 摇滚卡农 -->
+            <div class="song-card" id="song-kanon">
+                <div class="tab-container" id="tab-gtp-kanon">
+                    <div class="tab-header">
+                        <div class="song-info">
+                            <span class="tab-title">摇滚卡农</span>
+                            <div class="song-meta">
+                                <span class="song-artist">JerryC</span>
+                                <span class="song-difficulty difficulty-hard">高级</span>
+                            </div>
+                        </div>
+                        <div class="tab-controls">
+                            <button class="btn btn-play" id="btnPlay-gtp-kanon" onclick="togglePlay('gtp-kanon')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('gtp-kanon')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-gtp-kanon" onclick="toggleLoop('gtp-kanon')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render songs-tab" id="render-gtp-kanon"></div>
+                </div>
+            </div>
+
+            <!-- 野蜂飞舞 -->
+            <div class="song-card" id="song-yefeng">
+                <div class="tab-container" id="tab-gtp-yefeng">
+                    <div class="tab-header">
+                        <div class="song-info">
+                            <span class="tab-title">野蜂飞舞</span>
+                            <div class="song-meta">
+                                <span class="song-artist">Rimsky-Korsakov (古典改编)</span>
+                                <span class="song-difficulty difficulty-hard">高级</span>
+                            </div>
+                        </div>
+                        <div class="tab-controls">
+                            <button class="btn btn-play" id="btnPlay-gtp-yefeng" onclick="togglePlay('gtp-yefeng')">▶ 播放</button>
+                            <button class="btn btn-stop" onclick="stopPlay('gtp-yefeng')">■ 停止</button>
+                            <button class="btn btn-loop" id="btnLoop-gtp-yefeng" onclick="toggleLoop('gtp-yefeng')">🔁 循环</button>
+                        </div>
+                    </div>
+                    <div class="tab-render songs-tab" id="render-gtp-yefeng"></div>
+                </div>
+            </div>
+        </section>
+        </div><!-- .songs-page -->
+        </main><!-- .main-content -->
+    </div><!-- .page-wrapper -->
+
+    <!-- ========== 加载 AlphaTab 库 ========== -->
+    <script src="js/alphaTab.min.js"></script>
+    
+    <!-- ========== 加载应用逻辑脚本 ========== -->
+    <script src="js/app.js"></script>
+    
+    <!-- 
+      页面初始化说明:
+      app.js 中的 init() 函数会在 DOMContentLoaded 时自动调用
+      init() 会检测是否有侧边栏元素:
+        - 有侧边栏 (index.html): 构建导航 + 初始化所有谱例
+        - 无侧边栏 (songs.html): 仅初始化谱例
+    -->
+
+    <!-- ========== 目录功能脚本 ========== -->
+    <script>
+        /**
+         * 滚动到指定章节并高亮目录项
+         * @param {string} sectionId - 目标章节的 ID
+         * @param {HTMLElement} linkElement - 被点击的链接元素
+         */
+        function scrollToSection(sectionId, linkElement) {
+            /* 阻止默认跳转 */
+            event.preventDefault();
+            
+            var section = document.getElementById(sectionId);
+            if (section) {
+                /* 平滑滚动到目标位置 */
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            
+            /* 更新目录项的高亮状态 */
+            updateTocActive(linkElement);
+            
+            /* 移动端：点击后自动收起目录 */
+            if (window.innerWidth <= 768) {
+                var toc = document.getElementById('songToc');
+                if (toc) {
+                    toc.classList.remove('mobile-show');
+                }
+            }
+        }
+
+        /**
+         * 更新目录项的激活状态
+         * @param {HTMLElement} activeLink - 当前激活的链接
+         */
+        function updateTocActive(activeLink) {
+            /* 移除所有 active 类 */
+            var links = document.querySelectorAll('.toc-list a');
+            for (var i = 0; i < links.length; i++) {
+                links[i].classList.remove('active');
+            }
+            
+            /* 为当前点击的链接添加 active 类 */
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        /**
+         * 切换移动端目录显示/隐藏
+         */
+        function toggleToc() {
+            var toc = document.getElementById('songToc');
+            if (toc) {
+                toc.classList.toggle('mobile-show');
+            }
+        }
+
+        /**
+         * 监听滚动，自动更新目录高亮
+         * 当用户滚动页面时，自动高亮当前可见的歌曲对应的目录项
+         */
+        (function() {
+            /* 所有歌曲的ID列表 */
+            var songs = [
+                'song-xihuan', 'song-zhenai',   /* 入门级 */
+                'song-guanlan', 'song-haikuo',   /* 初级 */
+                'song-huise', 'song-shuibw',     /* 中级 */
+                'song-kanon', 'song-yefeng'      /* 高级 */
+            ];
+            var tocLinks = document.querySelectorAll('.toc-list a');
+            
+            /* 使用 IntersectionObserver 监听章节可见性 */
+            if ('IntersectionObserver' in window) {
+                var observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            var id = entry.target.id;
+                            /* 找到对应目录项并高亮 */
+                            for (var i = 0; i < tocLinks.length; i++) {
+                                if (tocLinks[i].getAttribute('href') === '#' + id) {
+                                    updateTocActive(tocLinks[i]);
+                                    break;
+                                }
+                            }
+                        }
+                    });
+                }, { threshold: 0.3 });
+
+                /* 观察每首歌曲 */
+                songs.forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el) observer.observe(el);
+                });
+            }
+        })();
+    </script>

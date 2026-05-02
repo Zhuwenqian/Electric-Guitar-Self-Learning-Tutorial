@@ -67,7 +67,7 @@ node server.js
 # http://localhost:9999
 ```
 
-### 方式三：Docker 部署
+### 方式二：Docker 部署
 
 ```bash
 # 构建 Docker 镜像

@@ -3,14 +3,14 @@
   文件用途: 电吉他自学教程 - 交互逻辑脚本
   包含所有页面的交互功能，使用 AlphaTab 库渲染吉他六线谱。
   
-  版本: v1.6.3 (2026-05-02)
+  版本: v1.8.0 (2026-05-02)
   更新内容:
+    - **新增** 谱例互斥播放功能（播放一个自动停止其他）
+    - 升级 AlphaTab 从 v1.8.1 到 **v1.8.2**（最新稳定版）
     - 修复 twinkle（小星星）和 birthday（生日歌）的 AlphaTex 解析错误
     - 使用 Beat Duration 格式（.duration）替代 Duration Change（:duration）
     - 解决 | 小节线前的 :duration 语法冲突问题
     - 确保所有 Score 正确显示小节线
-    - 升级 AlphaTab 从 v1.3.1 到 v1.8.1（最新稳定版）
-    - 使用新API: isReadyForPlayback, playPause(), playerState
     - 优化播放控制逻辑，增强错误处理
     - 修复按钮点击无响应问题（CSS pointer-events）
   
@@ -23,6 +23,7 @@
     6. 移动端响应式适配（侧边栏切换）
     7. 滚动监听，自动高亮当前章节
     8. 播放光标系统（进度条/小节高亮/音符高亮）
+    9. **互斥播放系统**（多个谱例不会同时发声）⭐ 新增
   
   教程内容:
     第一章：认识电吉他（构造、定音、姿势、调音）
@@ -41,12 +42,33 @@
     - 高级：摇滚卡农（JerryC）、野蜂飞舞（古典改编）
   
   依赖库:
-    - AlphaTab v1.8.1 (js/alphaTab.min.js)
+    - **AlphaTab v1.8.2** (js/alphaTab.min.js) ⭐ 最新版本
       项目地址: https://github.com/CoderLine/alphaTab
-      许可证: LGPL-3.0
+      许可证: MPL-2.0
       用于渲染交互式吉他六线谱，支持播放、循环、调速等功能
       支持 AlphaTex 文本格式和 Guitar Pro 文件格式（.gp3/.gp4/.gp5/.gpx/.gp）
-      v1.8.1 新增功能: isReadyForPlayback, playPause(), customCursorHandler, exportAudio()
+      
+      v1.8.2 新增功能 (2026-04-10):
+      - 🎵 使用自然音阶拼写代替半音阶拼写
+      - 🎯 光标动画改进：播放范围结束时的自定义光标处理器
+      - 🔧 GP5 低音谱号检测修复
+      - 🔧 GP5 打击乐器兼容性修复
+      - 🎼 多实例 SMuFL 字体族配置修复
+      - 🎹 循环和歌曲结束时快速结束播放
+      - 📱 Android 平台改进
+      - ⚡ Worker 模式重构（所有平台统一）
+      
+      常用 API:
+      - isReadyForPlayback: 检查播放器是否完全就绪
+      - playPause(): 切换播放/暂停
+      - playerState: 获取当前状态 (Playing/Paused/Stopped)
+      - customCursorHandler: 自定义光标处理器 (v1.8.2 新增)
+      
+  互斥播放系统说明:
+    - 功能：当播放一个谱例时，自动停止所有其他正在播放的谱例
+    - 实现：在 togglePlay() 函数中，播放前遍历 AppState.players 停止其他
+    - 效果：避免多个音频同时播放，提升用户体验
+    - 日志：控制台输出 [互斥] 标记的详细日志，便于调试
 */
 
 // ========== 全局状态管理 ==========
@@ -945,7 +967,7 @@ function togglePlay(id) {
     }
     
     /*
-     * AlphaTab v1.8.1 新增：使用 isReadyForPlayback 检查播放器是否完全就绪
+     * AlphaTab v1.8.x 新增：使用 isReadyForPlayback 检查播放器是否完全就绪
      * 如果未就绪，显示友好提示而不是直接报错
      */
     if (player.api.isReadyForPlayback !== undefined && !player.api.isReadyForPlayback) {
@@ -972,6 +994,61 @@ function togglePlay(id) {
             console.error('[播放] ❌ 暂停失败:', e);
         }
     } else {
+        /*
+         * ====== 互斥播放：停止所有其他正在播放的谱例 ======
+         * 当用户点击播放新谱例时，自动停止所有其他正在播放的谱例
+         * 避免多个音频同时播放造成混乱
+         * 
+         * 实现原理：
+         * 1. 遍历 AppState.players 中所有谱例
+         * 2. 找到所有正在播放且不是当前谱例的（otherId !== id）
+         * 3. 调用 stopPlay(otherId) 停止它们
+         * 4. 更新它们的按钮状态为"▶ 播放"
+         */
+        console.log('[互斥] 🛑 开始检查并停止其他正在播放的谱例...');
+        var stoppedCount = 0;
+        var allPlayerIds = Object.keys(AppState.players);
+        
+        for (var i = 0; i < allPlayerIds.length; i++) {
+            var otherId = allPlayerIds[i];
+            
+            /* 跳过当前要播放的谱例 */
+            if (otherId === id) continue;
+            
+            var otherPlayer = AppState.players[otherId];
+            
+            /* 如果这个谱例正在播放，则停止它 */
+            if (otherPlayer && otherPlayer.playing) {
+                console.log('[互斥] 🛑 正在停止谱例:', otherId);
+                
+                try {
+                    /* 停止播放 */
+                    otherPlayer.api.stop();
+                    otherPlayer.playing = false;
+                    
+                    /* 更新按钮状态 */
+                    var otherBtn = document.getElementById('btnPlay-' + otherId);
+                    if (otherBtn) {
+                        otherBtn.textContent = '▶ 播放';
+                        otherBtn.classList.remove('playing');
+                    }
+                    
+                    stoppedCount++;
+                    console.log('[互斥] ✅ 已停止谱例:', otherId);
+                } catch (stopError) {
+                    console.error('[互斥] ❌ 停止谱例失败 (' + otherId + '):', stopError);
+                }
+            }
+        }
+        
+        if (stoppedCount > 0) {
+            console.log('[互斥] ✅ 共停止了', stoppedCount, '个正在播放的谱例');
+        } else {
+            console.log('[互斥] ℹ️ 没有其他正在播放的谱例');
+        }
+        
+        /* ====== 互斥播放结束 ====== */
+        
         /* 当前未播放 → 开始播放 */
         console.log('[播放] 正在调用 api.play()...');
         try {

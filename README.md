@@ -4,9 +4,9 @@
 
 一个基于 Web 的交互式电吉他自学教程，使用 AlphaTab 开源引擎渲染吉他六线谱，支持播放、调速、循环等丰富功能。包含 8 章系统化教程 + 150+ 首经典曲目练习。
 
-![版本](https://img.shields.io/badge/版本-v1.6.1-blue)
+![版本](https://img.shields.io/badge/版本-v1.8.0-blue)
 ![许可证](https://img.shields.io/badge/许可证-GPL%20v3-blue)
-![AlphaTab](https://img.shields.io/badge/AlphaTab-v1.8.1-orange)
+![AlphaTab](https://img.shields.io/badge/AlphaTab-v1.8.2-orange)
 
 ---
 

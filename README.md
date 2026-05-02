@@ -121,8 +121,8 @@ docker run -d -p 9999:80 guitar-tutorial
 |------|:----:|------|
 | HTML5 | - | 语义化标签，结构清晰 |
 | CSS3 | - | CSS变量系统 + Flexbox/Grid 布局 |
-| JavaScript | ES5+ | 兼容性优先，模块化设计 |
-| **AlphaTab** | **v1.8.1** | 开源吉他谱渲染引擎（核心） |
+| JavaScript | Node.js 24+ | 兼容性优先，模块化设计 |
+| **AlphaTab** | **v1.8.2** | 开源吉他谱渲染引擎（核心） |
 | Google Fonts | - | Poppins 字体（现代排版） |
 
 ### 核心依赖：AlphaTab
@@ -271,6 +271,9 @@ docker run -d -p 9999:80 guitar-tutorial
 查看详细更新记录：[功能更新.md](readme/功能更新.md)
 
 ### 最近更新
+
+## v1.8.0 (2026-05-02)
+**🎵 新增互斥播放系统 + AlphaTab v1.8.2 升级**
 
 #### v1.6.1 (2026-05-02)
 - ✨ **播放光标增强**：更粗的竖线 + 渐变色 + 脉冲发光动画

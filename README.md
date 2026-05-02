@@ -4,7 +4,7 @@
 
 一个基于 Web 的交互式电吉他自学教程，使用 AlphaTab 开源引擎渲染吉他六线谱，支持播放、调速、循环等丰富功能。包含 8 章系统化教程 + 150+ 首经典曲目练习。
 
-![版本](https://img.shields.io/badge/版本-v1.8.0-blue)
+![版本](https://img.shields.io/badge/版本-v1.8.1-blue)
 ![许可证](https://img.shields.io/badge/许可证-GPL%20v3-blue)
 ![AlphaTab](https://img.shields.io/badge/AlphaTab-v1.8.2-orange)
 
@@ -90,12 +90,13 @@ docker run -d -p 9999:80 guitar-tutorial
 ├── index.html              # 📄 主页面（8章教程内容）
 ├── songs.html              # 🎵 经典曲目练习页（独立页面）
 ├── server.js               # 🖥️ Node.js 本地服务器
+├── RELEASE_NOTES.md        # 📢 发布说明文档
 │
 ├── css/
 │   └── style.css           # 🎨 样式表（深色主题 + 响应式）
 │
 ├── js/
-│   ├── alphaTab.min.js     # 🎸 AlphaTab 引擎 v1.8.1（1.1MB）
+│   ├── alphaTab.min.js     # 🎸 AlphaTab 引擎 v1.8.2（1.1MB）
 │   ├── app.js              # ⚙️ 应用逻辑（渲染、播放、导航）
 │   ├── sonivox.sf2         # 🔊 SoundFont 音色库（1.3MB）
 │   └── font/
@@ -268,30 +269,30 @@ docker run -d -p 9999:80 guitar-tutorial
 
 ## 📋 更新日志
 
-查看详细更新记录：[功能更新.md](readme/功能更新.md)
+查看详细更新记录：[功能更新.md](readme/功能更新.md) | [发布说明](RELEASE_NOTES.md)
 
 ### 最近更新
 
-## v1.8.0 (2026-05-02)
-**🎵 新增互斥播放系统 + AlphaTab v1.8.2 升级**
+#### v1.8.1 (2026-05-02)
+- 📝 **新增文档**：RELEASE_NOTES.md 发布说明文档
+- � **完整历史**：v1.3.0 ~ v1.8.0 的详细更新记录
+- 🚀 **部署指南**：安装、升级、Docker 部署说明
 
-#### v1.6.1 (2026-05-02)
-- ✨ **播放光标增强**：更粗的竖线 + 渐变色 + 脉冲发光动画
-- 🐛 **小节线修复**：恢复 `\|` 分隔符，确保正确分小节
-- 🎨 **UI 微调**：优化小节高亮和音符高亮颜色
+#### v1.8.0 (2026-05-02)
+- � **互斥播放**：播放一个谱例自动停止其他
+- � **AlphaTab 升级**：v1.8.1 → v1.8.2（最新稳定版）
+- � **Bug 修复**：修复小星星、生日歌的 AlphaTex 解析错误
+- 🎼 **小节线显示**：所有 Score 正确显示标准小节线
 
-#### v1.6.0 (2026-05-02)
-- 🎨 **全面美化升级**：Vibrant & Block-based 设计风格
-- 🔤 **Google Fonts**：集成 Poppins 字体
-- 💫 **动画增强**：渐变背景、悬停效果、入场动画
-- 🐛 **导航修复**：修复 songs.html 目录链接跳转问题
+#### v1.7.0 (2026-05-02)
+- 🚀 **AlphaTab 升级**：v1.8.1 → v1.8.2
+- 🐛 **解析修复**：使用 `.duration` 格式替代 `:duration`
 
-#### v1.5.0 (2026-05-02)
-- 🚀 **AlphaTab 升级**：v1.3.1 → v1.8.1（最新稳定版）
-- 🆕 **新 API 支持**：isReadyForPlayback, playPause(), exportAudio()
-- 🐛 **Bug 修复**：解决按钮点击无响应问题
+#### v1.6.3 (2026-05-02)
+- 🐛 **语法修复**：解决 `:duration` 与 `|` 的冲突问题
+- 🎼 **小节线优化**：确保所有 Score 正确分小节
 
-> 完整历史记录请查看 [功能更新.md](readme/功能更新.md)
+> 完整历史记录请查看 [功能更新.md](readme/功能更新.md) 或 [RELEASE_NOTES.md](RELEASE_NOTES.md)
 
 ---
 

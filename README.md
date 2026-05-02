@@ -341,7 +341,6 @@ docker run -d -p 9999:80 guitar-tutorial
 ## 🙏 致谢
 
 - **[AlphaTab 团队](https://github.com/CoderLine/alphaTab)** - 强大的吉他谱渲染引擎
-- **[Beyond 乐队]** - 经典曲目授权参考
 - **所有开源贡献者** - 让音乐教育更加普及
 
 ---
